@@ -6,10 +6,12 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <cstdio>
 
 #include "frame_buffer_config.hpp"
 #include "graphics.hpp"
 #include "font.hpp"
+#include "console.hpp"
 
 // 配置newを定義して、クラスのインスタンスを生成可能にする
 void* operator new(size_t size, void* buf) {
@@ -42,14 +44,13 @@ extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
     }
   }
 
-  for (int x = 0; x < 200; ++x) {
-    for (int y = 0; y < 100; ++y) {
-      pixel_writer->Write(x, y, {0, 255, 0});
-    }
+  // コンソールを初期化
+  Console console{*pixel_writer, {0, 0, 0}, {255, 255, 255}};
+
+  char buf[128];
+  for (int i = 0; i < 27; ++i) {
+    sprintf(buf, "line %d\n", i);
+    console.PutString(buf);
   }
-
-  WriteAscii(*pixel_writer, 50, 50, 'A', {0, 0, 0});
-  WriteAscii(*pixel_writer, 58, 50, 'A', {0, 0, 0});
-
   while (1) __asm__("hlt");  // __asm__()はアセンブリ言語の命令を埋め込むときに使う
 }
